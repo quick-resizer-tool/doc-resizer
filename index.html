@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocResize - Fast Photo & Signature Resizer for Online Forms</title>
+    <meta name="description" content="Free browser-based photo and signature resizer. Compress images to exact KB sizes and pixel dimensions for official job and exam applications securely.">
+    
+    <!-- Google AdSense Verification Placeholder -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .badge-privacy {
+            font-size: 0.75rem;
+            background-color: #ecfdf5;
+            color: var(--success);
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            border: 1px solid #a7f3d0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        .ad-placeholder {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .main-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .drop-zone {
+            border: 2px dashed #93c5fd;
+            background: #eff6ff;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+        }
+
+        .drop-zone input {
+            display: none;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .preset-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .preset-btn strong {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .preset-btn span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .preview-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .preview-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .preview-box {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: #f8fafc;
+            max-width: 200px;
+            max-height: 250px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-box img {
+            max-width: 100%;
+            max-height: 220px;
+            display: block;
+        }
+
+        .output-details {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 0.75rem;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .content-section {
+            margin-top: 2rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .content-section h2 {
+            font-size: 1.15rem;
+            margin: 1.25rem 0 0.5rem 0;
+        }
+
+        .content-section p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">DocResize</a>
+        <span class="badge-privacy">🔒 Client-Side Only (No Server Uploads)</span>
+    </header>
+
+    <div class="container">
+
+        <!-- AdSense Top Banner -->
+        <div class="ad-placeholder">
+            [ Responsive Ad Placement Header ]
+        </div>
+
+        <main class="main-card">
+            <!-- Upload Area -->
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <p><strong>Click to choose a photo/signature</strong> or drag & drop</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Supported: JPG, JPEG, PNG</p>
+                <input type="file" id="fileInput" accept="image/jpeg, image/png">
+            </div>
+
+            <!-- Quick Presets -->
+            <p style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-top: 1.25rem;">STANDARD APPLICATION PRESETS:</p>
+            <div class="preset-grid">
+                <button type="button" class="preset-btn" onclick="applyPreset(200, 230, 20, 50, this)">
+                    <strong>Passport Photograph</strong>
+                    <span>200×230 px | 20 KB – 50 KB</span>
+                </button>
+                <button type="button" class="preset-btn" onclick="applyPreset(140, 60, 10, 20, this)">
+                    <strong>Official Signature</strong>
+                    <span>140×60 px | 10 KB – 20 KB</span>
+                </button>
+                <button type="button" class="preset-btn" onclick="applyPreset(300, 300, 50, 100, this)">
+                    <strong>Thumb Impression / Cert</strong>
+                    <span>Square | 50 KB – 100 KB</span>
+                </button>
+            </div>
+
+            <!-- Custom Controls -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="targetWidth">Width (px)</label>
+                    <input type="number" id="targetWidth" value="200">
+                </div>
+                <div class="form-group">
+                    <label for="targetHeight">Height (px)</label>
+                    <input type="number" id="targetHeight" value="230">
+                </div>
+                <div class="form-group">
+                    <label for="maxKb">Max File Size (KB)</label>
+                    <input type="number" id="maxKb" value="50">
+                </div>
+            </div>
+
+            <button class="action-btn" id="processBtn" onclick="processImage()" disabled>Upload an Image First</button>
+
+            <!-- Preview & Result Section -->
+            <div class="preview-section" id="previewSection">
+                <div class="preview-grid">
+                    <div class="preview-box">
+                        <img id="outputImage" alt="Resized Output">
+                    </div>
+                    <div class="output-details">
+                        <p><strong>Status:</strong> <span style="color: var(--success);">Processed Successfully</span></p>
+                        <p><strong>Target Size:</strong> <span id="outDimensions"></span></p>
+                        <p><strong>Final Weight:</strong> <span id="outSize"></span></p>
+                        <a href="#" id="downloadLink" class="download-btn" download="resized_document.jpg">Download Image</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- AdSense In-Content Banner -->
+        <div class="ad-placeholder">
+            [ In-Content Ad Placement ]
+        </div>
+
+        <!-- SEO Content Block for AdSense Compliance -->
+        <article class="content-section">
+            <h2>How to Resize Images for Job & Exam Applications</h2>
+            <p>
+                Most online examination and employment registration portals enforce rigid file limits—typically requiring passport photos to stay between 20 KB and 50 KB, and digital signatures between 10 KB and 20 KB. Submitting files outside these boundaries often leads to upload rejections or form errors.
+            </p>
+
+            <h2>Complete Privacy & Security</h2>
+            <p>
+                Unlike standard online conversion portals that upload files to cloud servers, this tool executes 100% of processing locally inside your web browser using client-side JavaScript and HTML5 Canvas. Your sensitive identity documents, certificates, and signatures never travel over the network or get saved to a remote database.
+            </p>
+        </article>
+
+    </div>
+
+    <footer>
+        <p>&copy; <span id="currentYear"></span> DocResize. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="#">Privacy Policy</a> | 
+            <a href="#">Terms of Service</a> | 
+            <a href="#">Contact</a>
+        </p>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        let loadedImage = null;
+        let originalFileName = "resized_document.jpg";
+
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const previewSection = document.getElementById('previewSection');
+        const outputImage = document.getElementById('outputImage');
+        const outDimensions = document.getElementById('outDimensions');
+        const outSize = document.getElementById('outSize');
+        const downloadLink = document.getElementById('downloadLink');
+
+        // Handle File Selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalFileName = file.name.replace(/\.[^/.]+$/, "") + "_resized.jpg";
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    loadedImage = img;
+                    processBtn.disabled = false;
+                    processBtn.textContent = "Resize & Compress Image";
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Preset Selector
+        function applyPreset(width, height, minKb, maxKb, btnElement) {
+            document.getElementById('targetWidth').value = width;
+            document.getElementById('targetHeight').value = height;
+            document.getElementById('maxKb').value = maxKb;
+
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+        }
+
+        // Image Processing with Iterative Binary Compression
+        async function processImage() {
+            if (!loadedImage) return;
+
+            const targetW = parseInt(document.getElementById('targetWidth').value, 10);
+            const targetH = parseInt(document.getElementById('targetHeight').value, 10);
+            const targetMaxBytes = parseInt(document.getElementById('maxKb').value, 10) * 1024;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = targetW;
+            canvas.height = targetH;
+            const ctx = canvas.getContext('2d');
+
+            // Draw clean background and resize
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, targetW, targetH);
+            ctx.drawImage(loadedImage, 0, 0, targetW, targetH);
+
+            // Binary search for optimal JPEG quality under max KB
+            let minQuality = 0.05;
+            let maxQuality = 0.98;
+            let bestBlob = null;
+
+            for (let i = 0; i < 7; i++) {
+                const midQuality = (minQuality + maxQuality) / 2;
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', midQuality));
+
+                if (blob.size <= targetMaxBytes) {
+                    bestBlob = blob;
+                    minQuality = midQuality; // try higher quality
+                } else {
+                    maxQuality = midQuality; // reduce quality
+                }
+            }
+
+            // Fallback if initial quality search didn't complete
+            if (!bestBlob) {
+                bestBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.1));
+            }
+
+            // Update UI
+            const resultUrl = URL.createObjectURL(bestBlob);
+            outputImage.src = resultUrl;
+            outDimensions.textContent = `${targetW} × ${targetH} px`;
+            outSize.textContent = `${(bestBlob.size / 1024).toFixed(1)} KB`;
+
+            downloadLink.href = resultUrl;
+            downloadLink.download = originalFileName;
+
+            previewSection.style.display = "block";
+            previewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
